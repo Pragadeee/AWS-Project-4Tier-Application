@@ -1,6 +1,9 @@
 # AWS-Project-4Tier-Application
 This repository provides an end-to-end deployment guide for a PHP mailing application on AWS, designed using a secure, multi-tier architecture. The setup includes a VPC with isolated subnets for web, app, and database layers, leveraging Amazon RDS for MySQL, EC2 instances, and S3 for configuration management.
 
+
+Implementing a PHP Mailing deployment with a multi-tier architecture on AWS involves creating an isolated network environment that connects frontend and backend servers to a database, ensuring secure and efficient data flow. Here’s a more detailed look at each step of the setup:
+
 STEP 1: Create the Base Networking Infrastructure
 A) Create the VPC Network
 Name: Prod-VPC
@@ -26,11 +29,16 @@ Database Subnets: For MySQL RDS, isolated to enhance security.
 
 Prod-db-Subnet-1: 10.0.35.0/24 in us-west-1a
 Prod-db-Subnet-2: 10.0.40.0/24 in us-west-1c
+
+
+
 STEP 2: Route Table Creation and Association
 For proper routing and failover:
 
 Public Route Tables: Assigned to NAT and Webserver subnets for internet access.
 Private Route Tables: Assigned to Appserver and Database subnets, routed via NAT gateways for external traffic.
+
+
 STEP 3: Associate Route Tables with Subnets
 Each subnet’s route table defines traffic flow rules. The NAT/ALB subnets, Webserver subnets, Appserver subnets, and Database subnets each get a dedicated route table for optimal control.
 
@@ -42,6 +50,8 @@ NAT Gateways: Enable outbound internet traffic from the private Appserver and Da
 
 Prod-NAT-Gateway-1: In Prod-NAT-ALB-Subnet-1, associated with Appserver and Database Route Table 1.
 Prod-NAT-Gateway-2: In Prod-NAT-ALB-Subnet-2, associated with Appserver and Database Route Table 2.
+
+
 STEP 5: Create Security Groups
 Each layer has specific security groups, defining allowed traffic per port and source.
 
@@ -51,6 +61,8 @@ Webservers Security Group: Allows connections from the frontend load balancer an
 Backend Load Balancer Security Group: Manages access to backend services (Appservers).
 Appservers Security Group: Accepts traffic from backend load balancer and allows SSH access via the bastion host.
 Database Security Group: Limits access to the Appservers for MySQL traffic on port 3306, with optional access for the bastion host.
+
+
 STEP 6: Create Load Balancers
 Load balancers distribute traffic across web and application servers, ensuring high availability.
 
@@ -62,11 +74,13 @@ Backend Load Balancer: Internal, directing traffic to app servers.
 
 Target Group: HTTP target group (Backend-LB-HTTP-TG), using /VenturaMailingApp.php for health checks.
 Security Group: Backend-LB-Security-Group
+
 STEP 7: Database Setup
 Database Subnet Group: Designated for RDS with multi-AZ redundancy.
 Subnet Group: prod-db-subnet-group
 Subnets: Prod-db-Subnet-1 and Prod-db-Subnet-2
 MySQL RDS Instance: Deployed as a multi-AZ, password-authenticated instance in the isolated database subnets, configured for automated backups and encryption.
+
 STEP 8: S3 Bucket Setup
 An S3 bucket stores automation scripts and configuration files for easy retrieval by EC2 instances.
 
@@ -80,6 +94,7 @@ A bastion host allows secure access to private subnets.
 
 Create EC2 Instance: Prod-Bastion-Host, using Ubuntu 20.04 and a public IP for SSH access.
 IAM Role: Assign AmazonS3ReadOnlyAccess to allow web and app servers to access configuration files on S3.
+
 STEP 10: SSH Agent Forwarding
 Use SSH agent forwarding to access private resources through the bastion host:
 
